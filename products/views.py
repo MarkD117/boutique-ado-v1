@@ -2,18 +2,27 @@ from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.contrib import messages
 # Special object used to generate search query
 from django.db.models import Q
-from .models import Product
+from .models import Product, Category
 
-# Create your views here.
 
 def all_products(request):
     """ A view to show all products, including sorting and search queries """
 
     products = Product.objects.all()
     query = None
+    categories = None
 
     # Checks for a submitted query
     if request.GET:
+        # If a category is submitted
+        if 'category' in request.GET:
+            # splits categories into list at the commas
+            categories = request.GET['category'].split(',')
+            # Filters all products whos category name is in list 
+            products = products.filter(category__name__in=categories)
+            # Filter categories down to names in the list
+            categories = Category.objects.filter(name__in=categories)
+        
         # if 'q' is in the request, assigns variable to submitted value
         if 'q' in request.GET:
             query = request.GET['q']
@@ -30,6 +39,7 @@ def all_products(request):
     context = {
         'products': products,
         'search_term': query,
+        'current_categories': categories,
     }
 
     return render(request, 'products/products.html', context)
