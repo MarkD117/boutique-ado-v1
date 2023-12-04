@@ -11,9 +11,33 @@ def all_products(request):
     products = Product.objects.all()
     query = None
     categories = None
+    sort = None
+    direction = None
 
     # Checks for a submitted query
     if request.GET:
+        # Check if sort is in request.GET
+        if 'sort' in request.GET:
+            # if it is, we set it to both sort (which is None) and sortkey 
+            sortkey = request.GET['sort']
+            sort = sortkey
+            # sets case insensitivity by setting name to lowercase
+            if sortkey == 'name':
+                # preserves original field name by renaming sortkey to
+                # lower_name in the event the user is sorting by name 
+                sortkey = 'lower_name'
+                # Annotate current list of products with new field
+                products = products.annotate(lower_name=Lower('name'))
+
+            # Checks to see if direction is ascending or descending
+            if 'direction' in request.GET:
+                direction = request.GET['direction']
+                # Reverses direction if direction is descending
+                if direction == 'desc':
+                    sortkey = f'-{sortkey}'
+            # sorts products using order_by() method
+            products = products.order_by(sortkey)
+
         # If a category is submitted
         if 'category' in request.GET:
             # splits categories into list at the commas
@@ -36,10 +60,14 @@ def all_products(request):
             queries = Q(name__icontains=query) | Q(description__icontains=query)
             products = products.filter(queries)
 
+    # Return current sorting methodology to the template
+    current_sorting = f'{sort}_{direction}'
+
     context = {
         'products': products,
         'search_term': query,
         'current_categories': categories,
+        'current_sorting': current_sorting,
     }
 
     return render(request, 'products/products.html', context)
