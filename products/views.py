@@ -21,14 +21,17 @@ def all_products(request):
             # if it is, we set it to both sort (which is None) and sortkey 
             sortkey = request.GET['sort']
             sort = sortkey
-            # sets case insensitivity by setting name to lowercase
+            # Sets case insensitivity sorting on name
+            # field by setting name to lowercase
             if sortkey == 'name':
                 # preserves original field name by renaming sortkey to
                 # lower_name in the event the user is sorting by name 
                 sortkey = 'lower_name'
                 # Annotate current list of products with new field
                 products = products.annotate(lower_name=Lower('name'))
-
+            # Allows categorized products to be sorted by name
+            if sortkey == 'category':
+                sortkey = 'category__name'
             # Checks to see if direction is ascending or descending
             if 'direction' in request.GET:
                 direction = request.GET['direction']
