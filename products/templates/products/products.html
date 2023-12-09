@@ -131,4 +131,60 @@
             </div>
         </div>
     </div>
+    <!-- Back to top button -->
+    <div class="btt-button shadow-sm rounded-0 border border-black">
+        <a class="btt-link d-flex h-100">
+            <i class="fas fa-arrow-up text-black mx-auto my-auto"></i>
+        </a>	
+    </div>
+{% endblock %}
+
+<!-- Adds below js to base template -->
+{% block postloadjs %}
+    <!-- block.super nsures we append the below code to 
+    what is already in the block as opposed to replacing it -->
+    {{ block.super }}
+    <!-- When btt button clicked, window scrolls to top -->
+    <script type="text/javascript">
+		$('.btt-link').click(function(e) {
+			window.scrollTo(0,0)
+		})
+	</script>
+
+    <script type="text/javascript">
+        // capturing change event from sort selector
+        $('#sort-selector').change(function() {
+            // Sets selector variable = to this
+            var selector = $(this);
+            // Sets currenturl variable = to new URL object
+            // that takes in current windows location
+            var currentUrl = new URL (window.location);
+
+            // Gets selected value from the selector box
+            // Refers to value attribute in the selector box
+            var selectedVal = selector.val();
+            
+            // If not reset, gets the sort and direction by
+            // splitting the selected value at the underscore
+            if(selectedVal != "reset"){
+                var sort = selectedVal.split("_")[0];
+                var direction = selectedVal.split('_')[1];
+
+                // Replacing GET parameters in url with searchParams.set() method
+                currentUrl.searchParams.set("sort", sort);
+                currentUrl.searchParams.set("direction", direction);
+
+                // Replace current location with the updated currentUrl
+                // Will reload page
+                window.location.replace(currentUrl);
+            // If user has selected the reset option
+            } else {
+                // Delete sort and get parameters
+                currentUrl.searchParams.delete("sort");
+                currentUrl.searchParams.delete("direction");
+
+                window.location.replace(currentUrl)
+            }
+        })
+    </script>
 {% endblock %}
