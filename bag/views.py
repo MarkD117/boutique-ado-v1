@@ -33,6 +33,5 @@ def add_to_bag(request, item_id):
 
     # overwriting bag variable in session
     request.session['bag'] = bag
-    print(request.session['bag'])
     return redirect(redirect_url)
     

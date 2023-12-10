@@ -1,11 +1,29 @@
 from decimal import Decimal
 from django.conf import settings
+from django.shortcuts import get_object_or_404
+from products.models import Product
 
 def bag_contents(request):
 
     bag_items = []
     total = 0
     product_count = 0
+    bag = request.session.get('bag', {})
+
+    for item_id, quantity in bag.items():
+        # Gets product and id
+        product = get_object_or_404(Product, pk=item_id)
+        # Adds quantity multiplied by price to total
+        total += quantity * product.price
+        # Increment product count by quantity
+        product_count += quantity
+        # Adding dictionary to list of bag items
+        # Product object is added to give access to other product fields such as product.image etc
+        bag_items.append({
+            'item_id': item_id,
+            'quantity': quantity,
+            'product': product,
+        })
 
     # Calculates delivery under threshold by multiplying
     # standard delivery percentage by total price
