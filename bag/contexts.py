@@ -39,7 +39,7 @@ def bag_contents(request):
                 # Add size the bag_items returned to the template
                 bag_items.append({
                     'item_id': item_id,
-                    'quantity': item_data,
+                    'quantity': quantity,
                     'product': product,
                     'size': size,
             })
