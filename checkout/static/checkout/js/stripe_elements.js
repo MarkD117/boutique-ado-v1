@@ -10,10 +10,10 @@
     getting 'public key' and 'client secret' from template slicing off
     the first and last character of each removing the quotation marks
 */
-var stripe_public_key = $('#id_stripe_public_key').text().slice(1, -1);
-var client_secret = $('#id_client_secret').text().slice(1, -1);
+var stripePublicKey = $('#id_stripe_public_key').text().slice(1, -1);
+var clientSecret = $('#id_client_secret').text().slice(1, -1);
 // Create stripe variable usinnng strip public key
-var stripe = Stripe(stripe_public_key);
+var stripe = Stripe(stripePublicKey);
 // Create and instance of strip elements
 var elements = stripe.elements();
 // Basic styles for the card
@@ -36,3 +36,57 @@ var style = {
 var card = elements.create('card', {style: style});
 // Mount card element to div
 card.mount('#card-element');
+
+// Handle realtime validation errors on the card element
+card.addEventListener('change', function (event) {
+    var errorDiv = document.getElementById('card-errors');
+    if (event.error) {
+        var html = `
+            <span class="icon" role="alert">
+                <i class="fas fa-times"></i>
+            </span>
+            <span>${event.error.message}</span>
+        `;
+        $(errorDiv).html(html);
+    } else {
+        errorDiv.textcontent = ''
+    }
+})
+
+// Handle form submit
+// Get payment form
+var form = document.getElementById('payment-form');
+
+form.addEventListener('submit', function(ev) {
+    // Prevent default action of POST
+    ev.preventDefault();
+    // Disabling card element and submit button to prevent multiple submissions
+    card.update({ 'disabled': true});
+    $('#submit-button').attr('disabled', true);
+    // stripe.confirmCardPayment() method sends card info securely to stripe
+    stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+            card: card,
+        }
+    // Once card info has been sent, then, this code runs
+    }).then(function(result) {
+        // Checking for error and diplaying message
+        if (result.error) {
+            var errorDiv = document.getElementById('card-errors');
+            var html = `
+                <span class="icon" role="alert">
+                <i class="fas fa-times"></i>
+                </span>
+                <span>${result.error.message}</span>`;
+            $(errorDiv).html(html);
+            // Re-enable card element and sumbit button
+            card.update({ 'disabled': false});
+            $('#submit-button').attr('disabled', false);
+        // If there is no error set status to succeeded and submit form
+        } else {
+            if (result.paymentIntent.status === 'succeeded') {
+                form.submit();
+            }
+        }
+    });
+});
