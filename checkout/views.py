@@ -14,6 +14,12 @@ def checkout(request):
     stripe_public_key = settings.STRIPE_PUBLIC_KEY
     stripe_secret_key = settings.STRIPE_SECRET_KEY
 
+    bag = request.session.get('bag', {})
+    # Prevents manually entering checkout url
+    if not bag:
+        messages.error(request, "There's nothing in your bag at the moment")
+        return redirect(reverse('products'))
+
     if request.method == 'POST':
         bag = request.session.get('bag', {})
 
