@@ -40,6 +40,7 @@ card.mount('#card-element');
 // Handle realtime validation errors on the card element
 card.addEventListener('change', function (event) {
     var errorDiv = document.getElementById('card-errors');
+    // Error displayed as html in card error div
     if (event.error) {
         var html = `
             <span class="icon" role="alert">
@@ -68,7 +69,7 @@ form.addEventListener('submit', function(ev) {
         payment_method: {
             card: card,
         }
-    // Once card info has been sent, then, this code runs
+    // Once card info has been sent, then, this function executes
     }).then(function(result) {
         // Checking for error and diplaying message
         if (result.error) {
@@ -80,9 +81,10 @@ form.addEventListener('submit', function(ev) {
                 <span>${result.error.message}</span>`;
             $(errorDiv).html(html);
             // Re-enable card element and sumbit button
+            // Allows user to fix error
             card.update({ 'disabled': false});
             $('#submit-button').attr('disabled', false);
-        // If there is no error set status to succeeded and submit form
+        // If there are no errors, set status to succeeded and submit form
         } else {
             if (result.paymentIntent.status === 'succeeded') {
                 form.submit();
