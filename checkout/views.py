@@ -35,7 +35,7 @@ def cache_checkout_data(request):
     # Error message if anything goes wrong
     except Exception as e:
         messages.error(request, 'Sorry, your payment cannot be \
-            processed right now. Please try again later')
+            processed right now. Please try again later.')
         return HttpResponse(content=e, status=400)
 
 def checkout(request):
@@ -69,7 +69,17 @@ def checkout(request):
         order_form = OrderForm(form_data)
         # Save form if valid
         if order_form.is_valid():
-            order = order_form.save()
+            # commit=False prevents multiple save events
+            # from being commited to the database
+            order = order_form.save(commit=False)
+            # Get payment id for this specific order
+            pid = request.POST.get('client_secret').split('_secret')[0]
+            order.stripe_pid = pid
+            # Set original shopping bag on the model and dump
+            # shopping bag to a json string and set on the order
+            order.original_bag = json.dumps(bag)
+            # save the order
+            order.save()
             for item_id, item_data in bag.items():
                 try:
                     # Get product id out of bag
@@ -99,14 +109,14 @@ def checkout(request):
                 # This should generally never happen, but If a product isnt found, 
                 # an error message is displayed, the empty order will be deleted,
                 # and the user will be returned to the shopping bag page.
-                except Prodcuct.DoesNotExist:
+                except Product.DoesNotExist:
                     messages.error(request, (
                         "One of the products in your bag wasn't found in our database. "
                         "Please call us for assistance!")
                     )
                     order.delete()
                     return redirect(reverse('view_bag'))
-            
+
             # checking if the user requested to save their information
             request.session['save_info'] = 'save-info' in request.POST
             # redirect to a new url called 'checkout_success' with the order number passed as an argument

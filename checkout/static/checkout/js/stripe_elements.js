@@ -50,9 +50,9 @@ card.addEventListener('change', function (event) {
         `;
         $(errorDiv).html(html);
     } else {
-        errorDiv.textcontent = ''
+        errorDiv.textContent = '';
     }
-})
+});
 
 // Handle form submit
 // Getting payment form
@@ -85,64 +85,64 @@ form.addEventListener('submit', function(ev) {
     // We want to wait for a response that the payment intent was updated
     // before calling the confirmed payment method. We can do this by
     // tacking on the .done method and executing the callback function.
-    $.post(url, postData).done(function() {
+    $.post(url, postData).done(function () {
     // stripe.confirmCardPayment() method sends card info securely to stripe
-    stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-            card: card,
-            // Add form data to payment intent
-            // trim method used to remove excess white space
-            billing_details: {
+        stripe.confirmCardPayment(clientSecret, {
+            payment_method: {
+                card: card,
+                // Add form data to payment intent
+                // trim method used to remove excess white space
+                billing_details: {
+                    name: $.trim(form.full_name.value),
+                    phone: $.trim(form.phone_number.value),
+                    email: $.trim(form.email.value),
+                    address: {
+                        line1: $.trim(form.street_address1.value),
+                        line2: $.trim(form.street_address2.value),
+                        city: $.trim(form.town_or_city.value),
+                        country: $.trim(form.country.value),
+                        state: $.trim(form.county.value),
+                    }
+                }
+            },
+            shipping: {
                 name: $.trim(form.full_name.value),
                 phone: $.trim(form.phone_number.value),
-                email: $.trim(form.email.value),
                 address: {
                     line1: $.trim(form.street_address1.value),
                     line2: $.trim(form.street_address2.value),
                     city: $.trim(form.town_or_city.value),
                     country: $.trim(form.country.value),
+                    postal_code: $.trim(form.postcode.value),
                     state: $.trim(form.county.value),
                 }
-            }
-        },
-        shipping: {
-            name: $.trim(form.full_name.value),
-            phone: $.trim(form.phone_number.value),
-            address: {
-                line1: $.trim(form.street_address1.value),
-                line2: $.trim(form.street_address2.value),
-                city: $.trim(form.town_or_city.value),
-                country: $.trim(form.country.value),
-                postal_code: $.trim(form.postcode.value),
-                state: $.trim(form.county.value),
-            }
-        }
+            },
 
-    // Once card info has been sent, then, this function executes
-    }).then(function(result) {
-        // Checking for error and diplaying message
-        if (result.error) {
-            var errorDiv = document.getElementById('card-errors');
-            var html = `
-                <span class="icon" role="alert">
-                <i class="fas fa-times"></i>
-                </span>
-                <span>${result.error.message}</span>`;
-            $(errorDiv).html(html);
-            // Toggles payment form back in and loading overlay out
-            $('#payment-form').fadeToggle(100);
-            $('#loading-overlay').fadeToggle(100);
-            // Re-enable card element and sumbit button
-            // Allows user to fix error
-            card.update({ 'disabled': false});
-            $('#submit-button').attr('disabled', false);
-        // If there are no errors, set status to succeeded and submit form
-        } else {
-            if (result.paymentIntent.status === 'succeeded') {
-                form.submit();
+        // Once card info has been sent, then, this function executes
+        }).then(function(result) {
+            // Checking for error and diplaying message
+            if (result.error) {
+                var errorDiv = document.getElementById('card-errors');
+                var html = `
+                    <span class="icon" role="alert">
+                    <i class="fas fa-times"></i>
+                    </span>
+                    <span>${result.error.message}</span>`;
+                $(errorDiv).html(html);
+                // Toggles payment form back in and loading overlay out
+                $('#payment-form').fadeToggle(100);
+                $('#loading-overlay').fadeToggle(100);
+                // Re-enable card element and sumbit button
+                // Allows user to fix error
+                card.update({ 'disabled': false});
+                $('#submit-button').attr('disabled', false);
+            // If there are no errors, set status to succeeded and submit form
+            } else {
+                if (result.paymentIntent.status === 'succeeded') {
+                    form.submit();
+                }
             }
-        }
-    });
+        });
     // Failure function if the view sends a 400 bad request response
     }).fail(function () {
         // Reloads the page, the error will be in django messages
