@@ -22,12 +22,11 @@ class OrderForm(forms.ModelForm):
             'full_name': 'Full Name',
             'email': 'Email Address',
             'phone_number': 'Phone Number',
-            'country': 'Country',
             'postcode': 'Postal Code',
             'town_or_city': 'Town or City',
             'street_address1': 'Street Address 1',
             'street_address2': 'Street Address 2',
-            'county': 'County',
+            'county': 'County, State or Locality',
         }
 
         # Autofocus set to true makes cursor start in full name field
@@ -35,12 +34,16 @@ class OrderForm(forms.ModelForm):
         # Iterates through form fields adding a '*' to the
         # placeholder if it a required field on the model
         for field in self.fields:
-            if self.fields[field].required:
-                placeholder = f'{placeholders[field]} *'
-            else:
-                placeholder = placeholders[field]
-            # Sets all placeholders to values in dictionary above
-            self.fields[field].widget.attrs['placeholder'] = placeholder
+            # country field asterisk is set on model. This if statement
+            # prevents the below code from throwing an error as it will
+            # not find the required country field key in the above dictionary
+            if field != 'country':
+                if self.fields[field].required:
+                    placeholder = f'{placeholders[field]} *'
+                else:
+                    placeholder = placeholders[field]
+                # Sets all placeholders to values in dictionary above
+                self.fields[field].widget.attrs['placeholder'] = placeholder
             # Adds custom css class
             self.fields[field].widget.attrs['class'] = 'stripe-style-input'
             # Remove form field labels as custom placeholders are set

@@ -36,6 +36,21 @@
   border: 1px solid #000;
 }
 
+/* Set all select elements and their option children to be black by default */
+
+select,
+select option {
+    color: #000000;
+}
+
+/* Set the select box to grey if it is invalid (i.e. nothing selected) */
+/* Set the default blank option value provided by the model to grey  */
+
+select:invalid,
+select option[value=""] {
+    color: #aab7c4 !important;
+}
+
 /* z-index keeps overlay on top of content */
 
 #loading-overlay {
