@@ -1,0 +1,22 @@
+/* Set input text color to black */
+#profile-update-form .form-control {
+    color: #000;
+}
+
+/* Set placeholder inputs to light grey */
+#profile-update-form input::placeholder {
+    color: #aab7c4;
+}
+
+/* Set the country field itself (except for the first option) black by default */
+
+#id_default_country,
+#id_default_country option:not(:first-child) {
+    color: #000;
+}
+
+/* Set the first country option light grey */
+
+#id_default_country option:first-child {
+    color: #aab7c4;
+}
