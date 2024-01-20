@@ -4,6 +4,7 @@ from django.contrib import messages
 from .models import UserProfile
 from .forms import UserProfileForm
 
+from checkout.models import Order
 
 def profile(request):
     """ Display the user's profile. """
@@ -28,6 +29,28 @@ def profile(request):
         'form': form,
         'orders': orders,
         'on_profile_page': True
+    }
+
+    return render(request, template, context)
+
+def order_history(request, order_number):
+    # Get order
+    order = get_object_or_404(Order, order_number=order_number)
+
+    # Message letting user know they are looking at a past order confirmation
+    messages.info(request, (
+        f'This is a past confirmation for order number {order_number}. '
+        'A confirmation email was sent on the order date.'
+    ))
+
+    # Uses template for checkout success confirmation as layout
+    # is already set up for rendering a nice order confirmation.
+    template = 'checkout/checkout_success.html'
+    context = {
+        'order': order,
+        # Variable added to context to check in template
+        # if the user arrived via the order history view
+        'from_profile': True,
     }
 
     return render(request, template, context)
