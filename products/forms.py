@@ -1,4 +1,5 @@
 from django import forms
+from .widgets import CustomClearableFileInput
 from .models import Product, Category
 
 # Product form class that extents the model form
@@ -8,6 +9,9 @@ class ProductForm(forms.ModelForm):
         model = Product
         # Dunder string used to include all the strings
         fields = '__all__'
+
+    # Replace image field on form to use custom image widget
+    image = forms.ImageField(label='Image', required=False, widget= CustomClearableFileInput)
 
     # Override init method to make changes to the fields
     def __init__(self, *args, **kwargs):
