@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 import os
 import dj_database_url
+
+development = os.environ.get('DEVELOPMENT', False)
+
 if os.path.isfile('env.py'):
     import env
 
@@ -27,11 +30,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = development
 
-ALLOWED_HOSTS = ['boutique-ado-md-63e3802e571f.herokuapp.com',
-                 '8000-markd117-boutiqueadov1-ykp0ln7z5k5.ws-eu107.gitpod.io']
-
+if development:
+    ALLOWED_HOSTS = [os.environ.get('LOCAL_HOSTNAME')]
+else:
+    ALLOWED_HOSTS = [os.environ.get('HEROKU_HOSTNAME')]
 
 # Application definition
 
